@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Production API — HTTPS only, certificate pinning ready -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">jagdishfoods.com</domain>
+        <domain includeSubdomains="true">api.jagdishfoods.com</domain>
+    </domain-config>
+
+    <!-- Razorpay — required for payment gateway -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">razorpay.com</domain>
+        <domain includeSubdomains="true">api.razorpay.com</domain>
+    </domain-config>
+
+    <!-- Google Maps / APIs -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">googleapis.com</domain>
+        <domain includeSubdomains="true">google.com</domain>
+    </domain-config>
+
+    <!-- Debug only — allow localhost during development -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="user"/>
+            <certificates src="system"/>
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

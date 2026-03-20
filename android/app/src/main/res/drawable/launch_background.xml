@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shown while Flutter engine loads — brand blue background -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Blue background -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#0083BC"/>
+        </shape>
+    </item>
+    <!-- Center logo — replace with actual logo in mipmap -->
+    <!-- <item android:gravity="center">
+        <bitmap android:src="@mipmap/ic_launcher" android:gravity="center"/>
+    </item> -->
+</layer-list>

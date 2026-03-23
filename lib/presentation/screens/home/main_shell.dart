@@ -2,122 +2,82 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:badges/badges.dart' as badges;
 import '../../../core/constants/app_colors.dart';
-import '../../../core/constants/app_constants.dart';
 import '../../../providers/cart_provider.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
   const MainShell({super.key, required this.child});
 
-  static const List<_NavItem> _navItems = [
-    _NavItem(icon: Icons.home_rounded, label: 'Home', path: '/home'),
-    _NavItem(icon: Icons.grid_view_rounded, label: 'Categories', path: '/categories'),
-    _NavItem(icon: Icons.shopping_cart_rounded, label: 'Cart', path: '/cart'),
-    _NavItem(icon: Icons.receipt_long_rounded, label: 'Orders', path: '/orders'),
-    _NavItem(icon: Icons.person_rounded, label: 'Profile', path: '/profile'),
+  static const _tabs = [
+    _Tab(Icons.home_rounded,       'Home',       '/home'),
+    _Tab(Icons.grid_view_rounded,  'Categories', '/categories'),
+    _Tab(Icons.shopping_cart_rounded, 'Cart',    '/cart'),
+    _Tab(Icons.receipt_long_rounded, 'Orders',   '/orders'),
+    _Tab(Icons.person_rounded,     'Profile',    '/profile'),
   ];
 
-  int _getIndex(String location) {
-    if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/categories') || location.startsWith('/category')) return 1;
-    if (location.startsWith('/cart')) return 2;
-    if (location.startsWith('/orders')) return 3;
-    if (location.startsWith('/profile')) return 4;
+  int _idx(String loc) {
+    if (loc.startsWith('/home'))       return 0;
+    if (loc.startsWith('/categor'))   return 1;
+    if (loc.startsWith('/cart'))      return 2;
+    if (loc.startsWith('/order'))     return 3;
+    if (loc.startsWith('/profile'))   return 4;
     return 0;
   }
 
   @override
   Widget build(BuildContext context) {
-    final location = GoRouterState.of(context).matchedLocation;
-    final currentIndex = _getIndex(location);
-    final cartProvider = context.watch<CartProvider>();
+    final loc   = GoRouterState.of(context).matchedLocation;
+    final idx   = _idx(loc);
+    final cart  = context.watch<CartProvider>();
 
     return Scaffold(
       body: child,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: AppColors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-            ),
-          ],
+          color: Colors.white,
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.09), blurRadius: 20, offset: const Offset(0, -4))],
         ),
         child: SafeArea(
           child: SizedBox(
-            height: 60,
-            child: Row(
-              children: List.generate(_navItems.length, (index) {
-                final item = _navItems[index];
-                final isActive = index == currentIndex;
-
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => context.go(item.path),
-                    behavior: HitTestBehavior.opaque,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (index == 2) // Cart with badge
-                            badges.Badge(
-                              showBadge: cartProvider.itemCount > 0,
-                              badgeContent: Text(
-                                cartProvider.itemCount.toString(),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              badgeStyle: const badges.BadgeStyle(
-                                badgeColor: AppColors.yellow,
-                                padding: EdgeInsets.all(4),
-                              ),
-                              child: Icon(
-                                item.icon,
-                                color: isActive ? AppColors.primary : AppColors.textLight,
-                                size: 24,
-                              ),
-                            )
-                          else
-                            Icon(
-                              item.icon,
-                              color: isActive ? AppColors.primary : AppColors.textLight,
-                              size: 24,
-                            ),
-                          const SizedBox(height: 3),
-                          Text(
-                            item.label,
-                            style: TextStyle(
-                              fontFamily: 'DMSans',
-                              fontSize: 10,
-                              fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                              color: isActive ? AppColors.primary : AppColors.textLight,
-                            ),
-                          ),
-                          if (isActive)
-                            Container(
-                              margin: const EdgeInsets.only(top: 2),
-                              width: 18,
-                              height: 3,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary,
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                        ],
-                      ),
+            height: 62,
+            child: Row(children: List.generate(_tabs.length, (i) {
+              final tab    = _tabs[i];
+              final active = i == idx;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => context.go(tab.path),
+                  behavior: HitTestBehavior.opaque,
+                  child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        Icon(tab.icon, size: 24, color: active ? AppColors.primary : AppColors.textLight),
+                        if (i == 2 && cart.itemCount > 0)
+                          Positioned(top: -4, right: -6, child: Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: const BoxDecoration(color: AppColors.yellow, shape: BoxShape.circle),
+                            child: Text('${cart.itemCount}',
+                              style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w800, color: AppColors.textDark)),
+                          )),
+                      ],
                     ),
-                  ),
-                );
-              }),
-            ),
+                    const SizedBox(height: 3),
+                    Text(tab.label, style: TextStyle(
+                      fontFamily: 'Poppins', fontSize: 10,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
+                      color: active ? AppColors.primary : AppColors.textLight,
+                    )),
+                    if (active) ...[
+                      const SizedBox(height: 2),
+                      Container(width: 18, height: 3, decoration: BoxDecoration(
+                        color: AppColors.primary, borderRadius: BorderRadius.circular(2))),
+                    ],
+                  ]),
+                ),
+              );
+            })),
           ),
         ),
       ),
@@ -125,9 +85,8 @@ class MainShell extends StatelessWidget {
   }
 }
 
-class _NavItem {
+class _Tab {
   final IconData icon;
-  final String label;
-  final String path;
-  const _NavItem({required this.icon, required this.label, required this.path});
+  final String label, path;
+  const _Tab(this.icon, this.label, this.path);
 }
